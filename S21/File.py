@@ -19,7 +19,7 @@ def Get_Index(arr, value):
             return i
 
 
-def Count_Nums_File(filename):
+def Count_Nums_File_List(filename):
     f = open(filename, 'r')
     lines = f.readlines()
 
@@ -41,4 +41,27 @@ def Count_Nums_File(filename):
         print(f"{UniqueNumbers[i]}:{CountNums[i]}")
 
 
-Count_Nums_File("numbers.txt")
+Count_Nums_File_List("numbers.txt")
+
+
+def Count_Nums_File_Dict(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+
+    DictNums = {}
+
+    for li in lines:
+        li = int(li.strip())
+
+        if li in DictNums:
+            DictNums[li] += 1
+        else:
+            DictNums[li] = 1
+
+    for k, v in DictNums.items():
+        print(f"{k}:{v}")
+
+print()
+Count_Nums_File_Dict("numbers.txt")
+
+
