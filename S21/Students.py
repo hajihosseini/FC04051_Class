@@ -10,3 +10,28 @@ StudentList = [{"Name":"Zahra", "Age":18, "Avg":15.98},
                {"Name":"Saman", "Age":22, "Avg":18.63},
                {"Name":"Hosna", "Age":23, "Avg":10.18},
                ]
+
+
+def AvgAvg(STDList):
+    if len(STDList)==0:
+        return 0
+    
+    sum = 0
+    for dic in STDList:
+        sum += dic["Avg"]
+    
+    return round(sum/len(STDList),2)
+
+print(AvgAvg(StudentList))
+
+
+def AvgAge(STDList):
+    if len(STDList)==0:
+        return 0
+    sum = 0
+    for item in STDList:
+        sum += item["Age"]
+
+    return round(sum/len(STDList),2)
+
+print(AvgAge(StudentList))
