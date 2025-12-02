@@ -32,6 +32,11 @@ void str_append(
     
 }
 
+int is_equal(char* pch1, char* pch2)
+{
+    
+}
+
 void main()
 {
     char name11[10] = "aliasdf";
