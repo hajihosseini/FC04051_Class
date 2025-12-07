@@ -21,7 +21,7 @@ def test_q1_Divisors_of_a_number():
     assert exam.q1_Divisors_of_a_number(144) == [1,2,3,4,6,8,9,12,16,18,24,36,48,72,144]
 
 
-@pytest.mark.skip("Not Implemented")
+#@pytest.mark.skip("Not Implemented")
 def test_q2_nth_prime_number():
     assert exam.q2_nth_prime_number(1)== 2
     assert exam.q2_nth_prime_number(2) == 3
@@ -30,7 +30,6 @@ def test_q2_nth_prime_number():
     assert exam.q2_nth_prime_number(9) == 23
     assert exam.q2_nth_prime_number(15) == 47
     assert exam.q2_nth_prime_number(12)== 37
-    
 
 
 @pytest.mark.skip("Not Implemented")
@@ -55,7 +54,7 @@ def test_q4_uinque_value_in_list():
     assert exam.q4_uinque_value_in_list([1,2,1,3,2,1,4,1,1,1,1,1,1,2]) == [1,2,3,4]
 
 
-@pytest.mark.skip("Not Implemented")
+#@pytest.mark.skip("Not Implemented")
 def test_q5_count_substrings():
     assert exam.q5_count_substring("aaa", "a") == 3
     assert exam.q5_count_substring("a", "aaa") == 0
@@ -65,7 +64,7 @@ def test_q5_count_substrings():
     assert exam.q5_count_substring("ababab", "ab") == 3
     assert exam.q5_count_substring("ababab", "aba") == 2
 
-@pytest.mark.skip("Not Implemented")
+#@pytest.mark.skip("Not Implemented")
 def test_q6_reverse_prime_positions():
     input = [0,1,2,3,4,5,6,7,8,9]
     revin = [0,1,7,5,4,3,6,2,8,9]
@@ -102,7 +101,7 @@ def test_q7_is_symmetry():
     assert not exam.q7_is_symmetry("abab")
 
 
-@pytest.mark.skip("Not Implemented")
+#@pytest.mark.skip("Not Implemented")
 def test_q8_count_chrs():
     input = ["hello", "students", "university", "computer"]
     result = {'h': 1, 'e': 4, 'l': 2, 'o': 2, 's': 3, 't': 4, 'u': 3, 'd': 1, 'n': 2, 'i': 2, 'v': 1, 'r': 2, 'y': 1, 'c': 1, 'm': 1, 'p': 1}
