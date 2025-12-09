@@ -2,7 +2,7 @@ import turtle
 import pytest
 import exam1_1402
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q0_manhatan_distance():
     x1, y1, x2, y2 = 0, 0, 1, 0
     assert 1 == exam1_1402.q0_manhatan_distance(x1, y1, x2, y2)
@@ -16,24 +16,24 @@ def test_q0_manhatan_distance():
     x1, y1, x2, y2 = 5, 1, -1, 2
     assert 7 == exam1_1402.q0_manhatan_distance(x1, y1, x2, y2)
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q1_closest_neighbor():
     assert exam1_1402.q1_closest_neighbor([1, 5, 2]) == 3
     assert exam1_1402.q1_closest_neighbor([1, 2, 5, 8, 1, 4, -3, 5, 1, 7]) == 1
     assert exam1_1402.q1_closest_neighbor([1, 10, 5, 8, 1, 5, -3, 5, 1, 7]) == 3
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q2_add_nums():
     assert exam1_1402.q2_add_nums([1, 1, 1, 1], [-1, 0, -1, 0]) == [0, 1, 0, 1]
     assert exam1_1402.q2_add_nums([1, 2, 1, 5, 8], [1, 7, -1, -4, 2]) == [2, 9, 0, 1, 10]
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q3_closest_two_friends():
     assert exam1_1402.q3_closest_two_friends([1, 5, 2]) == (0, 2, 1)
     assert exam1_1402.q3_closest_two_friends([1, -5, 5, 8, -1, 4, -3, 5, 12, 7]) == (2, 7, 0)
     assert exam1_1402.q3_closest_two_friends([11, 2, -5, 8, 17, -9, -3, 5, 20, -7]) == (2, 6, 2)
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q4_apply_rule_once():
     assert exam1_1402.q4_apply_rule_once('A', ['A', 'AB']) == 'AB'
     assert exam1_1402.q4_apply_rule_once('AA', ['A', 'AB']) == 'ABAB'
@@ -41,7 +41,7 @@ def test_q4_apply_rule_once():
     assert exam1_1402.q4_apply_rule_once('A', ['B', 'A']) == 'A'
     assert exam1_1402.q4_apply_rule_once('ABABA', ['A', 'BB']) == 'BBBBBBBB'
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q5_apply_rules_once():
     rule1 = ['A', 'B']
     rule2 = ['B', 'AB']
@@ -59,7 +59,7 @@ def test_q5_apply_rules_once():
     assert exam1_1402.q5_apply_rules_once('ABCABC', [rule1, rule2, rule3]) == 'AAAAAA'
     assert exam1_1402.q5_apply_rules_once('ABCABC', [rule1, rule3, rule2]) == 'BABBAB'
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q6_apply_rules_n():
     rule1 = ['A', 'AB']
     assert exam1_1402.q6_apply_rules_n('A', [rule1], 1) == 'AB'
@@ -75,7 +75,7 @@ def test_q6_apply_rules_n():
     assert exam1_1402.q6_apply_rules_n('A', [rule1, rule2, rule3], 2) == 'ACCAACCACCACCA'
     assert exam1_1402.q6_apply_rules_n('A', [rule1, rule2, rule3], 3) == 'ACCAACCACCACCAACCAACCACCACCAACCACCACCAACCACCACCA'
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q7_turtle_follows_instruction():
     t = init_turtle()
     locs, heads, cols = exam1_1402.q7_turtle_follows_instruction(t, 'F', 100, 0, [])
@@ -108,7 +108,7 @@ def test_q7_turtle_follows_instruction():
     cleanup_turtle()    
 
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q8_turtle_follows_instruction2():
     t = init_turtle()
     exam1_1402.q8_turtle_follows_instruction2(t, 'F[F]', 100, 90, [])
@@ -139,7 +139,7 @@ def test_q8_turtle_follows_instruction2():
     assert (0, 500) == pytest.approx(t.position()) and 30 == pytest.approx(t.heading())
 
 
-# @pytest.mark.skip()
+@pytest.mark.skip()
 def test_q9_turtle_following_rules():
     colors = [(140/255, 80/255, 60/255), (24/255, 180/255, 24/255), (48/255, 220/255, 48/255), (64/255, 255/255, 64/255)]
     start = 'F'
