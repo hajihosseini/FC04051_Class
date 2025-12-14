@@ -11,3 +11,9 @@ x = x + "45678fghj"
 
 print(x)
 print(y)
+
+w = [
+    "ali",
+    "zari", 
+    "test"
+]
