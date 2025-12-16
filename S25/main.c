@@ -34,7 +34,7 @@ void str_append(
 
 int is_equal(char* pch1, char* pch2)
 {
-    
+
 }
 
 void main()
@@ -42,6 +42,8 @@ void main()
     char name11[10] = "aliasdf";
     char name12[10] = "34132413";
     char name_result[30];
+    char name13413[] = "1234123";
+    char* pch2 = "23749128374";
     str_append(name11, 10, name12, 10, name_result, 30);
 
 

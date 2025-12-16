@@ -18,9 +18,8 @@ unsigned int clear_bit(unsigned int n, int i)
 
 unsigned int reverse_bits(unsigned int n)
 {
-    
-}
 
+}
 
 unsigned int power2(int n)
 {

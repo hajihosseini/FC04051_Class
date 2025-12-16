@@ -18,9 +18,43 @@ void conca6t(int argc, char** argv, char* result)
     *result = 0;
 }
 
-void split(char* pch, char del, char** result, int* count)
+void split(char* str, char del, char** result, int* count)
 {
+    int p = 0;
+    *count = 0;
+    for(int i = 0; str[p] ;i ++)
+    {
+        result[i] = &(str[p]);
+        // char* segment = result[i];
+        char segment[100];
+        result[i] = segment;
+        int j = 0;
+        while (str[p] != del)
+        {
+            segment[j] = str[p];
+            p ++;
+            j ++;
+        }
+        segment[j] = 0;
+        p ++;
+        *count += 1;
+    }
+}
 
+void split222s(char* pch, char del, char** result, int* pcount)
+{
+    int i = 0;
+    *pcount = 0;
+    result[(*pcount)++] = pch;
+    while (pch[i] != 0)
+    {
+        if (pch[i] == del)
+        {
+            pch[i] = 0;
+            result[(*pcount)++] = &(pch[i+1]);
+        }
+        i++;
+    }
 }
 
 void concat(int argc, char** argv, char* result)
@@ -31,6 +65,7 @@ void concat(int argc, char** argv, char* result)
             result[l++] = argv[i][j];
     result[l] = 0;
 }
+
 
 
 void main()

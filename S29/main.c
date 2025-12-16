@@ -22,7 +22,16 @@ void print_jagged_array(char **ppbuf, int len)
 
 int sum(int** nums, int* num_count, int count)
 {
-
+    int sum = 0;
+    for(int i=0; i<count; i++)
+    {
+        printf("%d\n", num_count[i]);
+        for (int j=0; j<num_count[i]; j++)
+        {
+            sum += nums[i][j];
+        }
+    }
+    return sum;
 }
 
 int main(int argc, char** argv)
@@ -34,15 +43,16 @@ int main(int argc, char** argv)
     int counts[3] = {3, 5, 2};
     int count = 3;
     int mysum = sum(nums, counts, count);
+    printf("%d\n", mysum);
     // print_jagged_array(argv, argc);
 
-    char buf[20] = "1234567890123456789";
-    char* pbuf[20];
-    for(int i=0; i<20; i++)
-    {
-        pbuf[i] = buf+i;
-    }
-    print_jagged_array(pbuf, 20);
+    // char buf[20] = "1234567890123456789";
+    // char* pbuf[20];
+    // for(int i=0; i<20; i++)
+    // {
+    //     pbuf[i] = buf+i;
+    // }
+    // print_jagged_array(pbuf, 20);
 }
 
 void main567898765()

@@ -67,7 +67,8 @@ void main()
     char pch2[20] = "12345678";
     int r = is_equal(pch_orig, pch2);
 
-    int* w = &r;
+    r = 0x3457890;
+    int* w = r;
     scanf("", &r)
 
 
