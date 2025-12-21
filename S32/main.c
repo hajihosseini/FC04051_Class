@@ -26,9 +26,13 @@ void print_list(double* items, int size)
     printf("\n");
 }
 
-double pop_list(double* items, int* size, int idx)
+double list_pop(double* items, int* size, int idx)
 {
-    
+    double item = *(items+idx); // items[idx]
+    for (int i=idx+1; i<*size; i++)
+        items[i-1] = items[i];
+    (*size)--;
+    return item;
 }
 
 
@@ -39,6 +43,22 @@ double pop_list(double* items, int* size)
 }
 
 void main()
+{
+    int list_size = 0;
+    int list_capacity = 0;
+    double* list_nums = NULL;
+
+    list_nums = list_append(list_nums, &list_size, &list_capacity, 5.1);
+    list_nums = list_append(list_nums, &list_size, &list_capacity, 5.2);
+    list_nums = list_append(list_nums, &list_size, &list_capacity, 5.3);
+    list_nums = list_append(list_nums, &list_size, &list_capacity, 5.4);
+    list_nums = list_append(list_nums, &list_size, &list_capacity, 5.5);
+    print_list(list_nums, list_size);
+    double result = list_pop(list_nums, &list_size, 2);
+    print_list(list_nums, list_size);
+
+}
+void main345789()
 {
     int list_size = 0;
     int list_capacity = 0;
