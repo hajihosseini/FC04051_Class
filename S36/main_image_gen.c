@@ -21,9 +21,9 @@ void main()
             for(int j=0 ;j<600; j++)
             {
                 if (i > minx  && i < maxx && j > miny && j< maxy)
-                    myImage.bmData[i*300 + j] = 1;
+                    myImage.bmData[i*600 + j] = 1;
                 else
-                    myImage.bmData[i*300 + j] = 0;
+                    myImage.bmData[i*600 + j] = 0;
             }
         
         WriteBitmapFile(f, &myImage);
