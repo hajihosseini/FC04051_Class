@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mandelbrot Set (Canvas) + Toggle 3D Shading</title>
+  <style>
+    html, body { height: 100%; margin: 0; background: #0b0d12; color: #e8e8e8; font-family: system-ui, sans-serif; }
+    .wrap { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+    header { padding: 10px 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    header .hint { opacity: 0.85; font-size: 13px; }
+    header button, header input { background: #161a24; color: #e8e8e8; border: 1px solid #2a3146; border-radius: 8px; padding: 8px 10px; }
+    header input { width: 120px; }
+    canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+    .status { margin-left: auto; font-size: 12px; opacity: 0.8; }
+    .on { border-color: #5b7cfa; box-shadow: 0 0 0 2px rgba(91,124,250,0.15) inset; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button id="resetBtn">Reset</button>
+
+    <label class="hint">Max iters:</label>
+    <input id="itersInput" type="number" min="50" max="5000" step="50" value="800" />
+    <button id="renderBtn">Render</button>
+
+    <button id="toggle3dBtn" class="on" title="Toggle 3D shading on/off">3D Shading: ON</button>
+
+    <span class="hint">Click: zoom in • Shift+Click: zoom out • Drag: pan • Wheel: zoom</span>
+    <span class="status" id="status"></span>
+  </header>
+
+  <canvas id="c"></canvas>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d", { willReadFrequently: false });
+
+  const statusEl = document.getElementById("status");
+  const itersInput = document.getElementById("itersInput");
+  const resetBtn = document.getElementById("resetBtn");
+  const renderBtn = document.getElementById("renderBtn");
+  const toggle3dBtn = document.getElementById("toggle3dBtn");
+
+  // Viewport in complex plane
+  const defaultView = {
+    cx: -0.5,
+    cy: 0.0,
+    scale: 3.0
+  };
+
+  let view = { ...defaultView };
+  let maxIters = parseInt(itersInput.value, 10) || 800;
+
+  // Toggle for 3D shading
+  let shadingEnabled = true;
+
+  // Interaction state
+  let dragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let viewStart = { cx: 0, cy: 0 };
+
+  function resizeCanvas() {
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    render();
+  }
+  window.addEventListener("resize", resizeCanvas);
+
+  function pixelToComplex(px, py) {
+    const w = canvas.width;
+    const h = canvas.height;
+    const aspect = w / h;
+
+    const halfW = view.scale / 2;
+    const halfH = (view.scale / aspect) / 2;
+
+    const x = view.cx + (px / (w - 1) * 2 - 1) * halfW;
+    const y = view.cy + (py / (h - 1) * 2 - 1) * halfH;
+    return { x, y };
+  }
+
+  // Smooth escape-time iteration count
+  function mandelbrotSmooth(cx, cy, maxIter) {
+    let x = 0, y = 0;
+    let xx = 0, yy = 0;
+    let iter = 0;
+
+    while (xx + yy <= 4 && iter < maxIter) {
+      y = 2 * x * y + cy;
+      x = xx - yy + cx;
+      xx = x * x;
+      yy = y * y;
+      iter++;
+    }
+
+    if (iter >= maxIter) return { inside: true, mu: maxIter };
+
+    const mag = Math.sqrt(xx + yy);
+    const mu = iter + 1 - Math.log(Math.log(mag)) / Math.log(2);
+    return { inside: false, mu };
+  }
+
+  // Palette
+  function hsvToRgb(h, s, v) {
+    const c = v * s;
+    const hp = (h % 360) / 60;
+    const x = c * (1 - Math.abs((hp % 2) - 1));
+    let r = 0, g = 0, b = 0;
+
+    if (0 <= hp && hp < 1) [r, g, b] = [c, x, 0];
+    else if (1 <= hp && hp < 2) [r, g, b] = [x, c, 0];
+    else if (2 <= hp && hp < 3) [r, g, b] = [0, c, x];
+    else if (3 <= hp && hp < 4) [r, g, b] = [0, x, c];
+    else if (4 <= hp && hp < 5) [r, g, b] = [x, 0, c];
+    else if (5 <= hp && hp < 6) [r, g, b] = [c, 0, x];
+
+    const m = v - c;
+    return {
+      r: Math.round((r + m) * 255),
+      g: Math.round((g + m) * 255),
+      b: Math.round((b + m) * 255),
+    };
+  }
+
+  function colorFor(mu, maxIter, inside) {
+    if (inside) return { r: 0, g: 0, b: 0 };
+    const t = mu / maxIter;
+    const hue = (360 * (0.95 + 8.0 * t)) % 360;
+    const sat = 0.85;
+    const val = 0.15 + 0.85 * (1 - Math.exp(-3.0 * t));
+    return hsvToRgb(hue, sat, val);
+  }
+
+  // --- 3D SHADING (Height map + normals + Lambert lighting) ---
+  function normalize3(v) {
+    const m = Math.hypot(v[0], v[1], v[2]) || 1;
+    return [v[0] / m, v[1] / m, v[2] / m];
+  }
+
+  const lightDir = normalize3([-0.4, -0.6, 1.0]);
+  const ambient = 0.25;
+  const diffuse = 0.90;
+  const bumpStrength = 1.5;
+
+  function apply3DShading(w, h, H, data) {
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const idx = y * w + x;
+
+        const hL = H[idx - 1], hR = H[idx + 1];
+        const hU = H[idx - w], hD = H[idx + w];
+
+        const dx = (hR - hL);
+        const dy = (hD - hU);
+
+        let nx = -dx * bumpStrength;
+        let ny = -dy * bumpStrength;
+        let nz = 1.0;
+
+        const inv = 1.0 / (Math.hypot(nx, ny, nz) || 1);
+        nx *= inv; ny *= inv; nz *= inv;
+
+        const lambert = Math.max(0, nx * lightDir[0] + ny * lightDir[1] + nz * lightDir[2]);
+        const shade = ambient + diffuse * lambert;
+
+        const i4 = idx * 4;
+        data[i4 + 0] = Math.min(255, data[i4 + 0] * shade);
+        data[i4 + 1] = Math.min(255, data[i4 + 1] * shade);
+        data[i4 + 2] = Math.min(255, data[i4 + 2] * shade);
+      }
+    }
+  }
+
+  // Render using tiles
+  let renderToken = 0;
+
+  function render() {
+    const token = ++renderToken;
+
+    maxIters = Math.max(50, Math.min(5000, parseInt(itersInput.value, 10) || 800));
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const img = ctx.createImageData(w, h);
+    const data = img.data;
+
+    // Height map (only used if shadingEnabled, but cheap to fill anyway)
+    const H = new Float32Array(w * h);
+
+    const t0 = performance.now();
+    statusEl.textContent = "Rendering…";
+
+    const TILE = 64;
+    let tx = 0, ty = 0;
+
+    function step() {
+      if (token !== renderToken) return;
+
+      const x0 = tx * TILE;
+      const y0 = ty * TILE;
+      const x1 = Math.min(w, x0 + TILE);
+      const y1 = Math.min(h, y0 + TILE);
+
+      for (let y = y0; y < y1; y++) {
+        for (let x = x0; x < x1; x++) {
+          const c = pixelToComplex(x, y);
+          const { inside, mu } = mandelbrotSmooth(c.x, c.y, maxIters);
+
+          const idx = y * w + x;
+
+          // Base color
+          const col = colorFor(mu, maxIters, inside);
+          const i = 4 * idx;
+          data[i + 0] = col.r;
+          data[i + 1] = col.g;
+          data[i + 2] = col.b;
+          data[i + 3] = 255;
+
+          // Height (smooth mapping)
+          H[idx] = inside ? 0 : Math.log1p(mu);
+        }
+      }
+
+      ctx.putImageData(img, 0, 0);
+
+      tx++;
+      if (tx * TILE >= w) { tx = 0; ty++; }
+
+      if (ty * TILE < h) {
+        requestAnimationFrame(step);
+      } else {
+        // Final pass: optional 3D shading
+        if (shadingEnabled) {
+          apply3DShading(w, h, H, data);
+          ctx.putImageData(img, 0, 0);
+        }
+
+        const dt = performance.now() - t0;
+        statusEl.textContent =
+          `Done • ${w}×${h} • iters=${maxIters} • ${dt.toFixed(0)}ms • 3D=${shadingEnabled ? "ON" : "OFF"} • center=(${view.cx.toFixed(6)}, ${view.cy.toFixed(6)}) • scale=${view.scale.toExponential(3)}`;
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  function zoomAt(px, py, factor) {
+    const before = pixelToComplex(px, py);
+    view.scale *= factor;
+    const after = pixelToComplex(px, py);
+
+    view.cx += (before.x - after.x);
+    view.cy += (before.y - after.y);
+
+    render();
+  }
+
+  // Mouse controls
+  canvas.addEventListener("mousedown", (e) => {
+    dragging = true;
+    dragStart = { x: e.offsetX, y: e.offsetY };
+    viewStart = { cx: view.cx, cy: view.cy };
+  });
+
+  window.addEventListener("mouseup", () => { dragging = false; });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const aspect = w / h;
+
+    const dx = (e.offsetX - dragStart.x) * (view.scale / w);
+    const dy = (e.offsetY - dragStart.y) * ((view.scale / aspect) / h);
+
+    view.cx = viewStart.cx - dx;
+    view.cy = viewStart.cy - dy;
+
+    render();
+  });
+
+  canvas.addEventListener("click", (e) => {
+    if (dragging) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const factor = e.shiftKey ? 1.8 : 0.55;
+    zoomAt(px, py, factor);
+  });
+
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const factor = Math.exp(e.deltaY * 0.0015);
+    zoomAt(px, py, factor);
+  }, { passive: false });
+
+  // UI
+  resetBtn.addEventListener("click", () => {
+    view = { ...defaultView };
+    render();
+  });
+
+  renderBtn.addEventListener("click", () => render());
+
+  toggle3dBtn.addEventListener("click", () => {
+    shadingEnabled = !shadingEnabled;
+    toggle3dBtn.textContent = `3D Shading: ${shadingEnabled ? "ON" : "OFF"}`;
+    toggle3dBtn.classList.toggle("on", shadingEnabled);
+    render();
+  });
+
+  requestAnimationFrame(resizeCanvas);
+})();
+</script>
+</body>
+</html>
